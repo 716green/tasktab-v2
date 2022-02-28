@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, getDoc, doc } from "firebase/firestore";
+import { hiddenStatuses } from "../collections/statuses";
 
 export const firebaseConfig = {
   apiKey: "AIzaSyDL0X_HqoVOCSVFmD4Pqg72s3DW_Pizu8Q",
@@ -12,5 +13,18 @@ export const firebaseConfig = {
 };
 
 export const firebaseApp = initializeApp(firebaseConfig);
-
 export const db = getFirestore(firebaseApp);
+
+export const getTasks = async (userEmail) => {
+  const filteredTasks = [];
+  const documentPath = "users/" + userEmail;
+  const docRef = doc(db, documentPath);
+  const userDoc = await getDoc(docRef);
+  const allTasks = userDoc.data().tasks;
+
+  await allTasks.forEach((task) => {
+    if (hiddenStatuses?.includes(task.status)) filteredTasks.push(task);
+  });
+
+  return filteredTasks;
+};

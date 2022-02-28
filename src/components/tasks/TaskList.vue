@@ -7,26 +7,23 @@
 </template>
 
 <script>
-import { db } from "@/services/firebase";
-import { getDoc, doc } from "firebase/firestore";
+import { getTasks } from "@/services/firebase";
+import { mapGetters } from "vuex";
 
 export default {
   name: "TaskList",
   data() {
     return {
       tasks: [],
-      userEmail: "bob@bbass.co",
-      hiddenStatuses: ["archived", "hidden"],
     };
   },
   async mounted() {
-    const docRef = doc(db, "users/" + this.userEmail);
-    const userDoc = await getDoc(docRef);
-    const tasks = userDoc.data().tasks;
-
-    tasks.forEach((task) => {
-      if (!this.hiddenStatuses?.includes(task.status)) this.tasks.push(task);
-    });
+    this.tasks = await getTasks(this.userEmail);
+  },
+  computed: {
+    ...mapGetters({
+      userEmail: "getUserEmail",
+    }),
   },
 };
 </script>
